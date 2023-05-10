@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SistemasLanche.Context;
+using SistemasLanche.Models;
+using SistemasLanche.Repositories;
+using SistemasLanche.Repositories.Interfaces;
 
 namespace SistemasLanche;
 public class Startup
@@ -18,6 +21,11 @@ public class Startup
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         services.AddTransient<ILancheRepository, LancheRepository>();
         services.AddTransient<ICategoriaRepository, CategoriaRepository>();
+        services.AddScoped(sp => CarrinhoCompra.GetCarrinho(sp));
+        services.AddControllersWithViews();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //Ativando recurso HttpContext
+        services.AddMemoryCache(); //Ativando Middleares
+        services.AddSession(); // Ativando Midlleares
 
         IMvcBuilder mvcBuilder = services.AddControllersWithViews();
     }
@@ -37,9 +45,8 @@ public class Startup
         }
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
         app.UseRouting();
-
+        app.UseSession(); //Utilizar o session
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>

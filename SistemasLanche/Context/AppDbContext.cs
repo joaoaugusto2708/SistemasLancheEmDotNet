@@ -12,5 +12,6 @@ namespace SistemasLanche.Context
         //Definir as classes DbSet a baixo
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Lanche> Lanches { get; set; }
+        public DbSet<CarrinhoCompraItem> CarrinhoCompraItems { get; set; }
     }
 }

@@ -19,6 +19,6 @@ namespace SistemasLanche.Models
         [Display(Name = "Descricao")]
         public string Descricao { get; set; }
 
-        public List<Lanche> Lanches { get; set; }
+		public List<Lanche> Lanches { get; set; }
     }
 }
