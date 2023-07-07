@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LanchesMac.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemasLanche.Context;
 using SistemasLanche.Models;
@@ -22,6 +23,7 @@ public class Startup
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         services.AddTransient<ILancheRepository, LancheRepository>();
         services.AddTransient<ICategoriaRepository, CategoriaRepository>();
+        services.AddTransient<IPedidoRepository, PedidoRepository>();
         services.AddScoped(sp => CarrinhoCompra.GetCarrinho(sp));
         services.AddControllersWithViews();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //Ativando recurso HttpContext
