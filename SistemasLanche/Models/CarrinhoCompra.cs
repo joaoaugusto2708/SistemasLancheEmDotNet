@@ -91,7 +91,7 @@ namespace SistemasLanche.Models
 		public decimal GetCarrinhoCompraTotal()
 		{
 			var total = _context.CarrinhoCompraItems.
-				Where(c => c.CarrinhoCompraId != CarrinhoCompraId).
+				Where(c => c.CarrinhoCompraId == CarrinhoCompraId).
 				Select(c => c.Lanche.Preco * c.Quantidade).Sum();
 			return total;
 		}

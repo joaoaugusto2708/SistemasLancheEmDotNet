@@ -64,7 +64,7 @@ namespace SistemasLanche.Models
         [Display(Name = "Data Envio Pedido")]
         [DataType(DataType.Text)]
         [DisplayFormat(DataFormatString = "{0: dd/MM/yyyy hh:mm}", ApplyFormatInEditMode = true)]
-        public DateTime? PedidoEntregueEm { get; set; }
+        public DateTime? PedidoEntregue { get; set; }
 
         public List<PedidoDetalhe> PedidoItens { get; set; }
 
