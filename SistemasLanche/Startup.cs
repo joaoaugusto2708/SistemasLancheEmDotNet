@@ -1,4 +1,5 @@
 ﻿using LanchesMac.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemasLanche.Context;
@@ -21,6 +22,7 @@ public class Startup
     {
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders(); //Inclui o serviço do Identity
         services.AddTransient<ILancheRepository, LancheRepository>();
         services.AddTransient<ICategoriaRepository, CategoriaRepository>();
         services.AddTransient<IPedidoRepository, PedidoRepository>();
@@ -50,6 +52,7 @@ public class Startup
         app.UseStaticFiles();
         app.UseRouting();
         app.UseSession(); //Utilizar o session
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
