@@ -1,0 +1,855 @@
+MVC, AspNet
+Rot Reload - para alterar enquanto roda o programa
+
+SQL Server, e o SQL Sever Management Studio
+
+Utilizar o SQL server 2022 Express
+Tambem iremos utilizar o SQL Server Management Studio (SSMS), que é o ambiente integrado que fornece ferramentas para configurar, monitorar e administrar a instância do SQL Server e o Bando de dados e as tabelas.
+
+Migrar de dotnet 6 para 7
+1 - Abra o arquivo de projeto .csproj : nomeDoArquivo.csproj
+Atualize o Target Framework Moniker(TFM do arquivo) do arquivo de projeto para net 7.0
+<PropertyGroup>
+	<TargetFramework> net7.0 </TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+</PropertyGroup>
+
+2 - No arquivo de projeto .csproj : nomeDoArquivo.csproj
+Atualize as versões dos pacotes usados no projeto como Microsoft.AspNetCore.*, Microsoft.EntityFrameworkCore.*, etc. para 7.0.0 ou posterior
+Nota: Verifique a compatibilidade dos pacotes com o .NET 7.0
+
+Alteração Obrigatória:
+Se você migrar o pacote do Microsoft.EntityFramework.Core para versão 7.0 deverá incluir na string de conexão definida no arquivo appsettings.json a propriedade TrustServerCertificate=true;
+
+
+Inicio do Projeto;
+Ferramentas:
+Entity Framework Core - Ferramenta para realizar o mapeamento objeto relacional entre as entidades e as tabelas do banco de dados
+
+Comando utilizado para utilizar Startup, deverá ser feito no program.cs
+
+namespace SistemasLanche;
+public class Program {
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args)
+            .Build()
+            .Run();
+    }
+
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>();
+        });
+        
+}
+
+
+Entendendo a estrutura
+	Projeto - onde fica as definições do projeto
+	Connected Services - permitem gerar referencias de serviços no app asp.net core, para aplicativos criados com WCF - Windows Communication Foundation - é uma framework para a criação de aplicativos orientados a serviço.
+
+Dependences
+	Analyzers -  permitem que voce siga um conjunto de convenções para melhorar a documentação de seus aplicativos asp.net core, emitem alertas para estilo de codigo e erros de configuração.
+	Frameworks - Contem um conjunto de frameworks disponilizados pela Microsft.
+
+Properties - contem o arquivo lauchSettings.json
+	lauchSettings.json - Configurações usadas em outra ide como VisualStudio ou utilizando o CLI, todas configurações tem que ser setadas nesse arquivo. 
+		-listSettings: lista as configurações de internet como autenticação e URL
+
+wwwroot - onde fica a definição dos arquivos stacks
+	pasta css
+	pasta js
+	pasta lib - onde ficam os pacotes utilizados como: bootstrap e jquery;
+
+Controllers - Ficam os controladores da aplicação no caso a lógica da aplicação
+
+Models - Defini os modelos de dominio da aplicação
+
+Views - Onde defini as Views da aplicação
+	Home -  Colocam as Views do controlador
+	Shared - Arquivos compartilhados por todas as Views do projeto
+	appSettings.json - Defini as configurações da aplicação
+
+Program.cs - defini a inicialização e o arquivo da inicialização
+
+Startup.cs -  tem as definições do serviço
+	ConfigureServices - defino os serviços que vou usar
+	Configure - habilita e configura os middles que serão utilizados
+
+
+Model, View, Controller(MVC) - É um padrão de arquitetura de software
+
+Objetivo: Separar os dados ou lógica de negócios(Model) da interface do usuário(View) e do fluxo da aplicação(Controller)
+
+Model -  Representa a parte da aplicação que implementa a lógica do modelo de dados da aplicação e gerencia o comportamento dos dados através das regras de negócio.
+
+View -  Exibe a interface do usuário e em geral é criada a partir do Model via Controller.
+
+Controller -  É o componente que recebe a solicitação, trabalha com o Model e com base no request seleciona uma View para ser exibida.
+
+ASP.NET Core MVC - Implementaçãoo do padrão MVC
+1 - View Engine : responsável por renderizar no formato HTML para o navegador
+2 - Model Binding : Permite mapear a informação dos requests para os parâmetros nomeados
+3 - Tag-Helpers :  Componentes reutilizáveis que são responsáveis por gerar html de forma automática nas Views
+4 - Routing : Direcionar o request HTTP para o Controller.
+5 - Scaffolding : Técnica usada para gerar código em tempo de projeto
+6 - Configuração sobre convenção : define um convenção para obter o comportamento esperado sem necessitar de configuração
+
+Sobre Convenção
+	Conveção de nomes para Controller.
+		nomeDoControladorController
+		prefixo		sufixo
+	Convenção para Views
+		Para toda Controller criado será criado uma pasta com o nome do prefixo do controlador
+		Para todo metodo actions será criado arquivos .cshtml com o nome da action
+
+Conceitos Importantes sobre MVC
+	No MVC não existe uma correspondência entre uma URL e uma página
+	Uma URL corresponde a uma ação de um controlador
+	As requisições são mapeadas para métodos Action no Controller
+	A definição do mapeamento padrão divide todas as requisições de entrada em três segmentos:
+        {controller}/{action}/{id}
+		home/edit/1
+	
+	O padrão MVC não é a mesma coisa que a uma arquitetura em 3 camadas
+	O padrão MVC está relacionado com a arquitetura da aplicação e em como os componentes se comunicam
+	A arquitetura 3 camadas está relacionada com a arquitetura do Sistema onde voce divide as responsabilidades em camada de apresentação, de negócio e de acesso aos dados.
+
+Modelo de dominio são as classes que representam a sua lógica de negócios.
+Exemplo:
+	Vender Lanches
+		Lanche: Nome, preço, descrição curta, imagem, imagem miniatura, categoria, se é um lanche preferido, se o lanche esta disponível.
+		Categoria: Nome e descrição
+	
+Modelo de dominio - Usar uma ferramenta ORM
+	Ferramento ORM - mapeia as classes para as tabelas do banco de dados.
+	Ferramenta recomendada pela Microsoft: Entity Framework Core
+		Abordagem Code-First
+			- Gerar o banco de dados e as tabelas a partir das classes
+			- Primeiro eu crio as classes do modelo de domínio, e depois, usando o EF Core eu crio o banco de dados e as tabelas com base nas classes.
+
+	Vantagens de usar EF Core - Code-First:
+		- Permite definir as propriedades e relacionamentos usando codigo C#
+		- Permite abstrair comandos SQL e objetos ADO.NET
+		- Permite gerenciar o versionamento do banco de dados usando Migrations
+		- Auxilia na produtividade reduzindo o tempo de desenvolvimento
+
+
+	Convenções - EF
+		- A propriedade Id ou <nome_entidade>Id vai gerar uma chave primaria na tabela
+		- As propriedades definidas na classe irão gerar colunas com o mesmo nome na tabela
+		- O tipo de dados das colunas geradas a partir dos tipos definidos nas propriedades depende do provedor do banco de dados usado
+		- Definição do relacionamento entre as entidades é definido em uma propriedade de navegação.
+
+Modelo de dominio: Criar classes com propriedades na pasta Models
+	Relacionamento: Um-para-Muitos
+
+
+Configurando EF
+	Instalar pelo NuGet no Nuget Package for Solutions e ir em Browser e procurar pelo pacote
+	ou
+	Pelo cmd do NuGet
+		install-package nomeDoPacote.
+
+	Para usar o EF baixamos 3 pacotes do EntityFramework que são
+		Microsoft.EntityFrameworkCore.Design
+		Microsoft.EntityFrameworkCore.SqlServer
+		Microsoft.EntityFrameworkCore.Tools
+
+	Criar pasta de contextos:
+		pasta chamada de Context, dentro dela colocar um arquivo chamado AddDbContext e colocar esta classa para herdar um classe do EntityFrameworkCore chamado de DbContext(Lembrar de colocar o using Microsft.EntityFrameworkCore no arquivo).
+		Nesta classe se defini as classes do modelo de dominio que vou querer mapear, se cria um construtor para passar a classe base segue o codigo a baixo
+			using Microsoft.EntityFrameworkCore;
+			using SistemasLanche.Models;
+
+			namespace SistemasLanche.Context
+			{
+    				public class AddDbContext : DbContext
+    				{
+        				public AddDbContext(DbContextOptions<AddDbContext> options) : base(options) //classe base é DbContext
+        				{
+            
+        				}
+        				//Definir as classes DbSet a baixo
+        				public DbSet<Categoria> Categorias { get; set; }
+        				public DbSet<Lanche> Lanches { get; set; }
+    				}
+			}
+		
+		Definir String de conexão será feita essa configuração no appsettings.json que é criado automaticamente pela solução e colocar o seguinte codigo
+  			"ConnectionStrings": {
+    				"DefaultConnection": "Data Source= caminhoDoSqlServer; Initial Catalog=nomeDaDatabase; Integrated Security=true"
+  			},
+			Exemplo:
+			  "ConnectionStrings": {
+    				"DefaultConnection": "Data Source= JOAO\\SQLEXPRESS; Initial Catalog=LanchesDatabase; Integrated Security=true"
+			},
+		Ir em Startup.cs e configurar o ConfigureServices com o seguinte código:
+			public void ConfigureServices(IServiceCollection services)
+    			{
+       			services.AddDbContext<Nome do arquivo .cs que foi configurado>(options => 
+					options.UseSqlServer(Configuration.GetConnectionString("Nome da String de Conexão"))) ;
+    			}
+			Obs: Lembrar de colocar o using do arquivo
+			Exemplo:
+			public void ConfigureServices(IServiceCollection services)
+    			{
+        			services.AddDbContext<AppDbContext>(options => 
+					options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))) ;
+    			}
+
+SQL SERVER -  Connetion String
+	A string de conexão é uma expressão que contém os parâmetros necessários para que os aplicativos se conectem a um servidor de banco de dados.
+
+	No SQL Server as strings de conexão incluem:
+		1- A instância do servidor
+		2- O nome do banco de dados
+		3- Os detalhes de autenticação
+		4- Outras configurações para se comunicar com o servidor do banco de dados
+
+	Exemplos usados de String de conexão
+		SQL Server Authentication
+		Sever=ServerName;Database=DatabaseName;User Id=UserName;Password=UserPassword;
+		Windows Authentication
+		Server=ServerName;Database=DatabaseName;Trusted_Connection=true;
+		LocalDB
+		Server=(localdb)\MinhaInstancia;Integrated Security=true;
+		SQL Express
+		Data Source=nome_server\\sqlexpress;Initial Catalog=Database;Integrated Security=true
+
+Entity Framework Core 7
+	Voce pode usar o EF Core 7.0 em projetos criados no .NET 6.0 e .NET 7.0
+	Princial mudança
+		System.Data.SqlClient
+		Nas versões anteriores do EF Core as strings de conexão SqlCliente usavam a propriedade Encrypt=False por padrão, e, isso permitia conexões em máquinas de desenvolvimento onde o servidor local não possia um certificado valido.
+		A partir do EF Core 7 as strings de conexão SqlClient utilizam por padrão Encrypt=true e isso significa que:
+			-O servidor deve ser configurado com um certificado válido;
+			-O cliente deve confiar neste certificado
+			Se essas condições não forem atendidas será lançado um SqlException
+
+		Maneiras de resolver este erro:
+			1 - Instalar um certificado válido no servidor
+			2 - Se o servidor tiver um certifado mas não for confiável para o cliente, defina a propriedade TrustServerCertificate=True para ignorar os macanismos normais de confiança;
+			3 - Adicionar explicitamente Encrypt=False à string de conexão;
+		As opções 2 e 3 somente devem ser aplicadas em ambiente de desenvolvimento pois deixam o servidor em um estado inseguro.
+
+	Gerenciando Certificados auto assinados
+		dotnet dev-certs https --check
+		Verifica a existência do certifacado de desenvolvimento, mas não executa nenhuma ação.
+		
+		dotnet dev-certs https
+		Gera um certificado válido auto-assinado para https no desenvolvimento
+
+		dotnet dev-certs https --trust
+		Confia no certificado local na maquina local
+
+Apresentando o recurso Data Annotations
+	São atributos que podem ser aplicados a classes e seus membros para realizar as seguintes tarefas:
+		a- Definir regras de validação para o modelo
+		b- Definir como os dados devem ser exibidos na interface
+		c- Especificar o relacionamento entre as entidades do modelo
+		d- Sobrescrever as convenções padrão do Entity Framework Core
+	
+	Estão disponiveis nos seguintes namespaces:
+		System.ComponentModel.DataAnnotations
+		System.ComponentModel.DataAnnotations.Schema
+
+Data Annotations - Utilização
+	1- Front-End: Atributos de validação
+		Usados para impor regras de validação nas Views. Podem ser usados para validar e-mail, dados, campos com máscaras, etc.
+	2- Front-End: Atributos de exibição
+		Usados para especificar como as propriedades do modelo serão exibidas.(Podem ser usados em Resources para exibir um valor diferente dependendo do idioma do usuário.)
+	3- Back-End: Atributos de Modelagem de dados
+		Usados para especificar as limitações da tabela e do relacionamento entre as classes podem ser usados para definir o tipo de campo, tamanho, formatação, etc.
+
+Data Annotations - Atributos de validação do modelo
+	Impor regras de validação na View
+		Definir os atributos nas propriedades das classes do modelo de domínio
+		Definir os critérios de validação em um local (Model) e isso produz os efeitos em qualquer lugar que o model for usado 
+
+Principais Atributos Data Annotations
+	Required - Especifica uma propriedade como obrigatória e não aceita null no banco de dados
+	Range - Especifica as restrições de intervalo numérico para o valor de um campo de dados
+	EmailAddress - Valida o formato de um endereço de e-mail
+	Phone - Valida o formato de telefone
+	MinLenght - Especifica o comprimento minimo dos dados da cadeia de caracteres da propriedade
+	MaxLenght - Especifica o comprimento maximo dos dados da cadeia de caracteres da propriedade
+	StringLenght - Especifica o comprimento minimo e maximo de caracteres permitidos na propriedade
+	RegularExpression - Permite definir expressões regulares para validações especificas
+	Display - Especifica como os campos de dados são exibidos e formatados na View
+	DisplayFormat - Aplica um formato definido a uma propriedade que será exibido na View
+
+Principais Atributos Data Annotations - Modelagem de dados
+	-Key(*): Identifica a propriedade como uma chave primária na tabela
+	-Table: Define o nome da tabela para a qual a classe será mapeada
+	-Column: Define a coluna na tabela para a qual a propriedade será mapeada
+	-DataType(*): Associa um tipo de dados adicional a uma propriedade
+	-ForeignKey: Especifica que a propriedade é usada como uma chave estrangeira
+	-NotMapped: Exclui a propriedade do mapeamento
+
+
+Migrations: é um recurso do Entity Framework Core que permite atualizar de forma incremental o esquema do banco de dados e assim mantê-lo sincronizado com o modelo de dados do seu projeto preservando os dados existentes.
+	Requisitos para uso: Instalar as ferramentas do Entity Framework Core que ajudam nas tarefas de desenvolvimento em tempo de projeto e são usadas para gerar migrações e fazer a engenharia reversa do esquema de banco de dados
+	Para aplicar o Migrations precisamos definir:
+		-Um modelo de entidades que são classes com propriedades; 
+		-Uma classe de contexto que herda de DbContext e os DbSets para as entidades a mapear
+		-Definir a string de conexão com o banco de dados no arquivo appsettings.json
+		-Registrar o contexto como um serviço usando AddDbContext
+		-Definir o provedor do banco de dados e a string de conexão usada;
+	Como usar:
+		-Usar as ferramentas no Visual Studio na janela do Package Manager Console
+		-Usar as ferramentas de linha de comando (NET CLI) com o VS Code
+	Processos de criar e aplicar o Migratiosn envolve duas etapas:
+		1- Criar a migração: Cria o arquivo de script SQL contendo os comandos da migração;
+		2- Aplicar a migração: Executa o arquivo de script gerado e aplica os comandos ao banco de dados;
+	
+	Comandos Migrations aplicados no Package Manger Console:
+		1- Cirar Migração
+			add-migration NomeDaMigração[options]
+		2- Aplicar Migração
+			update-database[options]
+		3- Remover Migração
+			remove-migration
+	Utilizando NET CLI
+		Instalar a ferramenta de linha de comando do EF Core
+			dotnet tool isntall --global dotnet-ef
+		1- Criar Migração
+			dotnet ef migrations add NomeDaMigração[options]
+		2- Aplicar Migração
+			dotnet ef database update[options]
+		3- Remover Migração
+			dotnet ef migration remove  
+		  
+
+
+Populando as tabelas com dados iniciais:
+	Opções:
+		1- Incluir dados manualmente usando a instrução INSERT INTO
+		2- Criar usando o método OnModelCreating do arquivo de contexto e definir o código usando a propriedade HasData do EF Core para preencher as tabelas com dados
+		3- Criar um método estático e definir o código para incluir dados usando método AddRange() do EF Core.
+		4- Criar uma migração vazia usando o Migrations e usar os métodos Up() e Down() e definir nestes métodos as instruções INSERT INTO para incluir dados nas tabelas
+
+Populando as tabelas com dados iniciais: Migrations
+	1- Criar uma nova migração vazia para popular as tagbelas
+	Obs: Será criada o arquivo de script contendo os métodos Up() e Down() vazios
+	2- Incluir no método Up() as instruções INSERT INTO para popular as tabelas
+	3- Incluir no método Down() as instruções DELETE FROM para desfazer a migração
+
+Utilizando INSERT INTO em uma migração vazia
+	codigo utilizado no Up: migrationBuilder.Sql("INSERT INTO Categorias(CategoriaNome, Descricao) " + //Seleciona coluna
+               "Values('Natural','Lanche feito com ingredientes integrais e naturais')"); //Passa os valores
+
+ 	Codigo utilizado no Down: migrationBuilder.Sql("DELETE FROM Categorias"); //Deleta a tabela
+
+
+Repository
+	fluxo Resquest
+		Usuario => Servidor(Roteador) => Controller => AppDbContext => SQL
+		Usuario <= Servidor <= View <= Controller <= AppDbContext <= SQL
+
+	Utilizando Padrão Repository
+		Usuario => Servidor(Roteador) => Controller => Repository => AppDbContext => SQL
+		Usuario <= Servidor <= View <= Controller <= Repository <= AppDbContext <= SQL
+		Este padrão desacopla e centraliza a lógica de acesso aos dados da aplicação
+		O padrão Repository cria uma camada de abstração entre a camada de acesso aos dados e camada lógica de negócios da apicação
+		Vantagens:
+			-Desacopla a sua aplicação da lógica de acesso a dados
+			-Centraliza a lógica de acesso a dados
+			-Facilita a realização de testes
+			-Facilita a manutenção do código
+			-Minimiza a duplicação de código nas consultas e comandos
+		
+		Padrão Repository - Implementação
+			- Criar uma interface com o contrato da lógica de acesso aos dados
+			- Criar uma classe concreta que implementa o contrato da interface
+
+		Implementação:
+			1 - Criar um interface publica
+				public interface ICategoriaRepository
+				{
+					IEnumerable<Categoria>Categorias{get;}
+				}
+				- Proprieade Categorias somente leitura que retorna uma Lista de objetosCategoria.
+				- Enumerable : Expõe um enumerador que dá suporte a uma iteração simples em uma coleção não genérica.
+					- Funciona apenas com leitura
+					- Somente percorre a coleção sequencialmente
+			
+			2 - Criar uma classe concreta
+				public class CategoriaRepository : ICategoraiRepository
+				{
+					private readonly AppDbContext _context;
+					public CategoriaRepository(AppDbContext contexto)
+					{
+						_context = contexto;
+					}
+					public IEnumerable<Categoria> Categorias => _context.Categorias
+				}
+				
+				- Usamos a injeção de dependência nativa da ASP.NET Core para injetar uma instância do serviço do contexto representado pela classe AppDbContext no construtor classe
+
+Registrando serviço do Repositório
+	Injeção da dependencia(Conhecida como DI) é um padrão de projeto no qual um objeto não cria suas classes dependentes, mas as requisita.
+	É uma técnica pela qual um objeto fornece as dependências de outro objeto
+	A plataforma .NET dá suporte ao padrão de projeto da injeção de dependencia(DI), que é uma técnica para obter inversão de controle(IOC) entre classes e suas dependencias.
+	A plataforma .NET implementa o padrão da Injeção de dependências através de um contêiner nativo chamado Contêiner DI que realiza e aplica a injeção de dependência após ser feita a configuração
+	
+	Escopo dos serviços:
+		Podemos usar três escopos com o contêiner DI padrão. Esses escopos afetam como o serviço é resolvido e descartado pelo provedor de serviços.
+		1- Transient: services.AddTransient<,>
+			Uma nova instância do serviço é criada cada vez que um serviço é solicitado do provedor de serviços. Se o serviço for descartável, o escopo do serviço monitorará todas as instâncias do serviço e destruirá todas as instâncias do serviço criadas nesse escopo quando o escopo do serviço for descartado.
+		2- Scoped: services.AddScoped<,>
+			Uma nova instância do serviço é criada em cada request, A cada requisição temos uma nova instância do serviço. Se o serviço for descartável, ele será descartado quando o escopo do serviço for descartado.
+		3- Singleton: services.AddSingleton<,>
+			Apenas uma instância do serviço é criada se ainda não estiver registrada como uma instância. Um objeto do serviço é criado e fornecido para todas as requisições. Todas as requisições obtém o mesmo objeto.
+
+Criando Controladores:
+	Por padrão são criados na pasta controller
+
+Tipos de View:
+	ViewData,ViewBag, TempData
+		Usados para transportar pequenas quantidades de dados entre o Controller e a View ou entre Controllers.
+	ViewData
+		Transfere dados do Controller para View; é do tipo ViewDataDictionary 
+		É um dicionário que armazena dados no formato chave/valor,
+		Exige a conversão de tipos para: verificar valores nulos, obter dados, evitar erros.
+		O tempo de vida é o request
+		Exemplo:
+			No Controller
+				ViewData["Titulo"] = "Todos os Lanches";
+				ViewData["Data"] = DateTime.Now;
+			Na View
+				@ViewData["Titulo"]
+				@ViewData["Data"]
+
+	ViewBag
+		Transfere dados do Controller para View; é uma propriedade dinâmica(dynamic)
+		É um tipo de object que armazena dados no formato chave/valor
+		Não requer a conversão de tipos
+		Tempo de vida é o request
+		Exemplo
+			No Controller
+				ViewData.Total = "Total de Lanches";
+				ViewData.TotalLanches = lanches.Count();
+			Na View
+				@ViewBag.Total
+				@ViewBag.TotalLanches
+
+	TempData
+		Transfere dados do :Controller para View, da View para o Controller ou de método Action para outro método Action no mesmo Controloador ou para um Controlador diferente
+		É um objeto dicionário do tipo TempDataDictionary que armazena dados do formato chave/valor
+		Armazena os dados temporariamente e os remove automaticamente após recuperar um valor.
+		Exige a conversão de tipos
+		Só pode recuperar o valor uma vez
+		Exemplo:
+			No Controller1
+				TempData["Nome"]="Joao";
+			No Controller2
+				@TempData["Nome"]
+			Observação sempre verificar a chave:
+				@if(TempData.ContainsKey("Key")
+				{
+					<h1>@TempData["Nome"];</h1>
+				}
+			Na View
+				@ViewBag.Total
+				@ViewBag.TotalLanches
+
+Arquivos _ViewStart e _ViewImports
+	_ViewStart
+		É o codigo executado antes das views e defini o Layout que todas as Views vão receber
+	_ViewImports
+		É usado para definido para incluir e definir os namespaces de todas as views
+
+
+
+Bootstrap Grid
+	-Trabalha com 12 colunas
+	-Defini classes que vão atuar conforme a definição
+		col-xs: Dispositivos extra pequenos com tela de largura inferior a 576px
+		col-sm: Dispositivos pequenos com a tela de largura igual ou superior a 576px
+		col-md: Dispositivos médios com a largura da tela igual ou superior a 768px
+		col-lg: Dispositivos grandes com a largura da tela igual ou superior a 992px
+		col-xl: xlarge devices com a lagura da tela igual ou superior a 1200px
+
+Conceito ViewModel
+	- É um padrão de projeto que permite separar as responsabilidades do modelos de dominio dos modelos que atendem as Views
+	- Representa o conjunto de uma ou mais entidades do Modelo de domínio e de outras informações que serão exibidas em uma View
+	1 - Contém apenas as propriedades que serão representadas na View
+	2 - Pode possuir regras específicas de validação(Data Annotations)
+	3 - Pode conter múltiplas entidades ou objetos dos modelo de domínio
+	4 - Contém a lógica da interface do usuário
+	5 - Contém somente dados e comportamentos relacionados ás Views
+	-Utilização das ViewsModels
+		-Gerenciar ou criar listas suspensas para uma entidade
+		-Criar Views Mestre-Detalhes
+		-Usadas em carrinhos de compras
+		-Usadas em paginação de dados
+		-Usadas para implementar o Login e o Registro
+	-Permite isolar e desacoplar o modelo de domínio da lógica de exibição da View
+	-Se existem informações no modelo de domínio que somente serão usadas nas Views crie uma ViewModel com essas informações separando as responsabilidades
+	-ViewModel é diferente de DTO
+
+Partial View - Definição
+	-É uma view que é renderizada em outra View
+	-São usadas para encapsular a lógica reutilizada nas views permitindo simplificar complexidade das views
+	-Podem ser usadas em múltiplas views onde é necessário uma lógica similar evitando assim duplicidade de código
+	Principais Usoas:
+		Renderizar menus de Navegação
+		Desenvolver formulários de entrada comuns
+		Renderizar dados comuns às View(Reduz a duplicação)
+		Dividir arquivos de marcação grandes em arquivos menores
+
+	Partial View - Definição
+		Possuem a extensão .cshtml
+		Podem ser retornadas em um método Action (ViewResult)
+		São iguais as views(a nivel de código)
+		São renderizadas de forma diferente(não executam o arquivo _ViewStart.cshtml)
+		São armazenadas na pasta Views ou na pasta Shared dentro da pasta Views
+		O nome do arquivo de uma partial view começa com um sublinhado(_)
+	Exemplo
+		Uma partial view criada em uma pasta especifica das views de um controlador pode ser usada por todas as views dessa pasta
+	Utilização: Tag Helper
+		<partial name="_PartialName" />
+		Tag Helper partial renderiza o conteúdo de forma assincrona
+		<partial name="~/Pages/_PartialName.cshtml" />
+		Ao definir uma extensão no arquivo da partial view a Tag Helper referencia uma partial view que deve estar na mesma pasta que o arquivo que chama partial view.
+	Utilização: Html Helper
+		@await Html.PartialAsync("_PartialName");
+		@await Html.RenderPartialAsync("_PartialName");
+		Usar a Html Helper PartialAsync ou RenderPartialAsync
+		@await Html.PartialAsync("_PartialName.cshtml")
+		@await Html.RenderPartialAsync("_PartialName.cshtml");
+		Quando a extensão do arquivos está presente, o HTML Helper faz referência a uma partial view que deve estar na mesma pasta que o arquivo de marcação que chama a partial view
+		Não é recomendado usar @Html.Partial nem @Html.RenderPartial que são assincronos
+	Utilização: Acessando dados
+		<partial name="_PartialName" for="Model" />
+		Html Helper
+		@await Html.PartialAsync("_PartialName", model);
+		@await Html.RenderPartialAsync("_PartialName", model);
+	Quando uma partial view é instanciada, ela recebe uma cópia do dicionário ViewData do pai.
+	As atualizações feitas nos dados dentro da partial view não são persistidas na view do pai
+	As alterações no ViewData em uma partial view são perdidas quando a partial view retorna
+
+Session e o Estado da aplicação
+	HTTP - protocolo sem estado
+	Asp .Net Core
+	Session -  Microsoft.AspNetCore.Session
+	Com base em um dicionário ou tabela hash no servidor, o estado da sessão persiste os dados através das requisições de um navegador
+	O Asp.Net Core mantém o estado da sessão, dando ao cliente um cookie que contém o ID da sessão, que é enviado ao servidor com cada solicitação
+	O servidor mantém uma sessão por tempo limitado após a ultima requisição
+	Você pode definir o tempo limite da sessão ou usar o valor padrão que é 20 minutos.
+	O estado da sessão é ideal para armazenar dados do usuário especificoss de uma determinada sessão
+	Dados são excluidos do cache: Sessão expira ou Session.Clear()
+	Configuração de sessão
+		Classe Startup deve conter:
+			- Qualquer um dos caches de memória IDistributedCache.
+			- Uma chamada AddSession em ConfigureServices()
+			- A chamada UseSession em Configure()
+			Exemplo:
+				public void ConfigureServices(IServiceCollection services){
+					//Adiciona uma implementação padrão de IDistributedCache
+					services.AddDistribuitedMemoryCache();
+					services.AddSession();
+				}
+
+				public void Configure(IApplicationBuilder app, IHostingEnvironment env){
+					......
+					app.UseSession();
+					app.Run(async(context)=> {
+						await context.Response.WriteAsync(msg.GetMensagem())
+					});
+				}
+		
+			Para utilizar a session primeiro tenho que definir a variavel onde será armazenado os dados da sessão
+			Ex:
+				const string SessionKeyNome = "_Nome";
+				const int SessionKeyIdade = "_Idade";
+			
+			Depois é feita a atribuição pelo HttpContext:
+			Ex:
+				HttpContext.Session.SetString(SessionKeyNome, "Joao");
+				HttpContext.Session.SetInt32(SessionKeyIdade, 23);
+			
+			Para obter os valores armazena na váriavel pelo contexto:
+			Ex:
+				var nome = context.Session.GetString(SessionKeyNome);
+				var idade = context.Session.GetInt32(SessionKeyIdade);
+
+	Configurando a Session e o uso de HttpContext
+		1- Para habilitar o middleware da Sessão temos que definir na classe Startup:
+			-Ativar o uso do cache em memoria atraves da interface IMemoryCache() usando o método AddMemoryCache(); no método ConfigureServices;
+			-Invocar o método AddSession() no método ConfigureServices;
+			-Invocar o método UseSession() no método Configure;
+		2- Para acessar os recursos do HttpContext em um serviço:
+			- Registrar a interface IHttpContextAcessor() para injeção de dependências no método ConfigureServices();
+
+View Components
+	Permitem criar funcionalidade semelhante a um método Action de um controlador independente de um controlador.(São semelhantes às Partial Views)
+	Consistem em duas partes:
+		1. A classe (derivada de ViewCompenent)
+		2. O resultado que ela retorna(uma view)
+
+	Criando um ViewComponent(VC)
+		1. Uma classe VC pode ser criada:
+			a) Derivando de ViewComponent
+			b) Decorando a classe com o atributo [ViewComponent]
+			c) Criando uma classe onde o nome termuna com o sufixo ViewComponent
+			Uma classe VC deve ser pública, não aninhada e não abstrata
+			A classe deve expor o método público InvokeAsync
+			Sintaxe: Nome =  nome_da_ClasseViewComponent
+			Ex: TesteViewComponent
+		2. O resultado que ela retorna(Um View)
+			- A view retornada deve ser criada na pasta:
+				View/Shared/Components/nome_vc
+			- Onde nome nome_vc é o nome do prefixo usado na VC criada
+			Exemplo: Uma View Component criado com o nome TesteViewComponent
+			Deverá ter a sua view criada na pasta: /View/Shared/Components/Teste
+			Se não for definida um nome especifico para a view o nome padrão é Default.cshtml
+		
+
+		Usando uma ViewComponent
+			1- A partir de um view
+				@Component.InvokeAsync("nome_vc", <tipo anonimo com parametros>)
+			A partir da ASP .NET Core 1.1 podemos invocar uma VC usando uma tag helper
+				<vc:nome_vc parm="....."></vc:nome_vc>
+			Devemos usar a diretiva: @addTagHelper; nomeAssembly
+
+			2- A partir de um controlador
+				Return ViewComponent("nome_vc", new {param=".."})
+				Exemplo:
+				public IActionResult IndexVC()
+				{
+					return ViewComponent("Lista", new {sequencia=".."})
+				}
+
+Tag Helpers
+	As Tag Helpers permitem que o código do lado do servidor participe na criação e renderização de elementos HTML em arquivos Razor.
+	Elas são uma sintaxe alternativa aos Html Helpers e obtém o mesmo resultado final gerando o código HTML
+	A sintaxe pareco com HTML(Elementos e Atributos), mas é processado pelo Razor no servidor
+	Exemplo:
+		<input type="text" asp-for="Nome" />
+		<label asp-for="Email" />
+		<form asp-controller="Conta" asp-action="Login" />
+			//Os elementos do formulário
+		</form>
+
+	A diretiva @addTagHelper torna as Tag Helpers disponiveis para uma view
+	Ao criar uma aplicação ASP .NET Core o arquivo Views/_ViewImports.cshtm que será herdado por todas as views da pasta /Views e subpastas será criado com o seguinte conteúdo:
+	@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+	
+	Para criação de elementos de formulário temos o conjunto de tag helpers descritros a seguir
+	Input Tag Helper
+	Text Area Tag Helper
+	Validation Tag Helper
+	Label Tag Helper
+	Select Tag Helper
+	
+	O recurso do Intellisense também está disponivel para as TagHelpers
+
+	Tag Helper Form
+		-Gera o valor do atributo Action HTML<FORM> para um Action de um controlador MVC ou uma rota nomeada;
+		-Gera um Token de Verificação de Solicitação oculto para evitar a falsificação de solicitações entre sites(Quando usado com atributo [ValidateAntiForgeryToken] no método de action HTTP Post);
+		-Fornece o atributo asp-route-<Nome do parâmetro>, no qual <Nome do parâmetro> é adicionado aos valores da rota. Os parâmetros routeValues para HTML.BeginForm e HTML.BeginRouteForm fornecem funcionalidade semelhante;
+		-Possui os HTML Helpers alternativos: HTML Html.BeginForm e Html.BeginRouteForm
+
+Rotemento de Endpoint
+	O roteamento é o processo pelo qual o framework ASP .NET Core inspeciona os requests HTTP de entrada e faz o mapeamento destes requests para executar os métodos Action correspondente do controlador
+	Responsabilidade do Roteamento
+		1- Mapear os requests de entrada para Action do Controlador
+		2- Gerar a URL de saída que corresponde ás ações do Controller
+	Endpoint
+		É um objeto que contém tudo que você precisa para executar um Request de entrada:
+		1- Os metadados do Request
+		2- O delegate que a ASP .NET Core usa para processar o Request
+		Os endpoints são definidos pelo método UseEndpoints
+	Configurando um Endpoint: Roteamento Convencional(MVC)
+		public void Configure(IApplicationBuilder app, IWebHostEnviroment env)
+		{
+			...
+			app.UseEndpoints(endpoints => 
+			{
+				endpoints.MapControllerRoute(
+					name: "default",
+					pattern: "{controller=Home}/{action=Index}/{id?}");
+					//Id pode ser opcional
+				);
+			});
+		}
+	Configurando um Endpoint no arquivo Program
+		var builder = WebApplication.CreateBuilder(args);
+		// Add services to the container.
+		builder.Services.AddControllersWithViews();
+		var app = builder.Build
+		....
+		app.MapControllerRoute(
+			name: "default",
+			pattern: "{controller=Home}/{action=Index}/{id?}"
+		);
+
+
+Autenticação e Autorização
+	
+	Autenticação - Verifacação de uma indentidade feita pela comparação das credenciais apresentadas com outras pré-definidas.(Quem é você?)
+	Autorização - Ocorre após a autenticação e permite atribuir e definir privilégios ao sujeito autenticado.(O que você pode fazer?)
+	Autenticação - Tipos
+		None: No Authentication
+		Individual: Individual authentication
+		IndividualB²C: Individual authentication with Azure AD B2C
+		SingleOrg: Organization authentication for a single tenant
+		MultiOrg: Organization authentication for multiple tenants
+		Windows: Windows Authentication
+	Autenticação - Usar template padrão
+		1- No Visual Studio configurar a autenticação para usar o tipo de autenticação Individual Accounts
+		ASP .NET Core Identity - Suporte ao Login e gerenciamento de usuário e senhas - Código fonte: https://github.com/dotnet/AspNetCore/tree/main/src/Identity
+		2- Linha de comando com NET CLI e VS Code
+			dotnet new mvc --auth Individual -o mvc1
+	Recursos
+		Microsoft.AspNetCore.Identity
+			É o sistema de associação que adiciona recursos de login e autenticação
+		Microsoft.AspNetCore.EntityFramework
+			É o provedor de indentidade ASP .NET Core que o Entity Framework Core
+	
+	Utilizar um banco de dados SQL Server para armazenar informações dos usuários como nome, senha, permissões, etc.
+	Criar o banco de dados e as tabelas usando a abordagem Code-First
+	A nossa implementação vai criar as tabelas do Identity no banco de dados da aplicação LancheDatabase
+	
+	ASP.NET Core Identity - Arquivo AppDbContext
+		public class AppDbContext : IdentityDbContext<IdentityUser>
+    		{
+        		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) //classe base é DbContext
+        		{
+            	
+        		}
+       		 	//Definir as classes DbSet a baixo
+        		public DbSet<Categoria> Categorias { get; set; }
+        		public DbSet<Lanche> Lanches { get; set; }
+        		public DbSet<CarrinhoCompraItem> CarrinhoCompraItems { get; set; }
+
+        		public DbSet<Pedido> Pedidos { get; set; }
+        		public DbSet<PedidoDetalhe> PedidoDetalhes { get; set; }
+    		}
+
+	O IdentityDbContext fornece todas as propriedades DbSet necessárias para gerenciar as tabelas de indentidade no SQL Server.
+	A classe IdentityUser é fornecida pela ASP.NET Core e contém propriedades para UserName, PasswordHash, Email etc. Essa é a classe usada pelo Identity para gerenciar usuários registrados do seu aplicativo. 
+
+	ASP.NET Core Identity - Arquivo Startup
+		public void ConfigureServices(IServiceCollection services)
+		{
+        		services.AddDbContext(AppDbContext)(options => 
+				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+			services.AddIdentity<IdentityUser, IdentityRole>()
+				.AddEntityFrameworkStores<AppDbContext>()
+				.AddDefaultTokenProviders();
+				
+				...    
+        	}
+	
+	IdentityRole é uma classe interna do Identity e fornece informações sobre perfis de usuário
+	AddEntityFrameworkStores -  permite armazenar e recuperar informações de usuários e do perfil usando o EF Core para o SQL Server
+	AddDefaultTokenProviders -  Inclui provedores de token padrão para redefinir senha, alterar email, no. de telefone e geração de token para autenticação em dois fatores
+
+
+	ASP.NET Core Identity - Arquivo Startup
+	
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    		{
+        		if (env.IsDevelopment())
+        		{
+            			app.UseDeveloperExceptionPage();
+        		}
+        		else
+        		{
+            			app.UseExceptionHandler("/Home/Error");
+            			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            			app.UseHsts();
+        		}
+        		app.UseHttpsRedirection();
+        		app.UseStaticFiles();
+        		app.UseRouting();
+        		app.UseSession(); //Utilizar o session
+			app.UseAuthentication();
+        		app.UseAuthorization();
+
+        		app.UseEndpoints(endpoints =>
+        		{
+            			endpoints.MapControllerRoute(
+                			name: "categoriaFiltro",
+                			pattern: "Lanche/{action}/{categoria?}",
+                			defaults: new {Controller = "Lanche", action = "List" });
+
+			    	endpoints.MapControllerRoute(
+        	        		name: "default",
+                			pattern: "{controller=Home}/{action=Index}/{id?}");
+        		});
+    		}
+		
+
+	Após terminar toda alteração no projeto dar um migration
+		add-migration nomeDaMigração
+		update-database
+
+
+Criação da tela de login
+
+	-UserManger <IdentityUser>
+	-SignInManager <IdentityUser>
+
+Metodos Actions
+
+	-Login (Get) Apresenta o formulário de Login
+	-Login (Post) Processa as informações postadas no Login
+
+LoginViewModel
+	Propriedades
+		UserName
+		Password
+		Return
+
+
+Tag Helpers de Validação
+	1- asp-validation-summary
+		É usada para exibir um resumo das mensagens de validação no formulário
+		asp-validation-summary
+			All		Propriedade e model
+			ModelOnly	Model
+			None		None
+	2- asp-validation-for
+		Anexa as mensagens de erro de validação no campo de entrada da propriedade de modelo especificada
+		Quando ocorre um erro de validação do lado do cliente, o JQuery exibe a mensagem de erro no elemento <span>
+
+AntiForgeryToken(evita ataques CSRF)
+	O cliente solicita uma pagina HTML que contém um formulário
+	A ASP.NET Core inclui dois tokens no response
+		- Um token enviado como um cookie HTTP cifrado
+		- Outro é colocado em um campo oculto do formulário (hidden)
+Os tokens são gerados aleatoriamente para que um hacker não consiga advinhar os valores
+Quando o cliente envia o formulário, ele deve enviar os 2 tokens de volta ao servidor
+O cliente envia o token do cookie e o token do formulário dentro dos dados do formulário.
+Se uma solicitação não incluir os dois tokens que devem ser iguais, o servidor não permitirá a solicitação.
+O atributo [ValidateAntiForgeryToken] é usado para validar o token gerado na view
+
+View Injection -> Permite injetar dependências em uma View usando a palavra-chave @inject
+
+Formas de restrição de acesso do usuário
+	Utilizando código
+		public IActionResult Index()
+		{
+			if (User.Identity.IsAuthenticated) //Verifica se está autenticado
+			{
+                		return View();
+            		}
+			return RedirectToAction("Login", "Account"); //Se não joga a pessoa para login
+		}
+	
+	Utilizando o atributo [Authorize] no Controller ou na Action
+		- Permite o acesso somente a usuários autenticados
+		- Quando utilizado sem parametro ele verifica somente se o usuário está autenticado
+		- Utilizando desta forma [Authorize(Roles="Admin, etc")] verifica se o usuário autenticado é do perfil de Admin ou outros perfis
+		- Tambem pode ser utilizado em metodos actions privando apenas o metodo e não o resto do controller
+	
+	Utilizando o Atributo [AllowAnonymous] no Controller ou na Action
+		-Permite o acesso a usuários não autenticados
