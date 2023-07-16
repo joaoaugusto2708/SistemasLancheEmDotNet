@@ -84,7 +84,7 @@ namespace SistemasLanche.Controllers
 		{
 			HttpContext.Session.Clear(); //Zera todos os métodos da session
 			HttpContext.User = null; //Zera todos os dados do User
-			await _signInManager.SignOutAsync();
+ 			await _signInManager.SignOutAsync();
 			return RedirectToAction("Index", "Home");
 		}
 	}

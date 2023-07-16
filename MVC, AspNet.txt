@@ -853,3 +853,63 @@ Formas de restrição de acesso do usuário
 	
 	Utilizando o Atributo [AllowAnonymous] no Controller ou na Action
 		-Permite o acesso a usuários não autenticados
+	
+Areas - Conceito
+	As Áreas podem ser definidas como unidades funcionais menores em um projeto ASP.NET Core MVC com seu próprio conjunto de controladores, views e modelos 
+	Elas são usadas para organizar funcionalidades relacionadas em um grupo separado e ajudam a gerenciar aplicação de uma maneira melhor separando cada aspecto funcional em diferentes Áreas
+
+Areas -  Quando usar
+	Quando sua aplicação for composta de múltiplos componentes funcionais de alto nível que podem ser separados logicamente
+	Se você desja particionar seu projeto MVC para que cada área funcional possa ser tratada de forma independente
+Areas - Caracteristicas
+	Uma aplicação ASP.NET Core MVC pode possuir qualquer número de Áreas
+	Cada área possui seus próprios controladores, models e views
+	Suporta múltiplos controladores com o mesmo nome em áreas diferentes
+
+Areas - Utilização I
+	A seguir temos que definir uma rota para trabalhar com a nova área criada no arquivo program.cs ou startup.cs:
+		app.UseEndpointes( endpoints => 
+		{
+			endpoints.MapControllerRoute(
+				name: "AdminArea",
+				pattern: "{area:exists}/{controller:Admin}/{action=Index}/{id?}"
+			);		
+		});
+
+	Configuração com um nome de área genérico que funciona para qualquer área que não estiver definida explicitamente
+
+Areas - Utilização II
+	Definindo uma rota para uma área especifica e a seguir um rota genérica
+	
+	app.UseEndpointes( endpoints => 
+	{
+		endpoints.MapControllerRoute(//Especifica
+			name: "Produtos",
+			areaName: "Produtos",
+			pattern: "{area:exists}/{controller:Admin}/{action=Index}/{id?}"
+		);
+		endpoints.MapControllerRoute(//Generica
+			name: "AdminArea",
+			pattern: "{area:exists}/{controller:Admin}/{action=Index}/{id?}"
+		);		
+	});
+	
+
+Areas - Utilização III
+	Decorar o controlador com o atributo [Area("nome_area")] definindo o nome da área
+		[Area("Admin")]
+		public class AdminCategoriasController:Controller
+		{
+			...
+		}
+
+		[Area("Categorias")]
+		public class CategoriasController:Controller
+		{
+			...
+		}
+
+Areas - Definindo links/rotas para áreas
+	Usar atributo asp-area para informar que um link/rota se refere a uma área
+	<a class="nav-link text-ligth" asp-area="Admin" asp-controller="Admin" asp-action="Index">Admin</a>
+	<a class="nav-link text-ligth" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
