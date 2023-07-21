@@ -913,3 +913,47 @@ Areas - Definindo links/rotas para áreas
 	Usar atributo asp-area para informar que um link/rota se refere a uma área
 	<a class="nav-link text-ligth" asp-area="Admin" asp-controller="Admin" asp-action="Index">Admin</a>
 	<a class="nav-link text-ligth" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+Implementação da Criação de Roles e Users e atribuir o usuário ao perfil
+
+	1- Implementar um serviço para criar os perfis ou roles: Admin e Member
+		-ISeedUserRoleInitial
+		-SeedUserRoleInitial
+	2- Registrar o serviço do contêiner DI
+		services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
+	3- Chamar o serviço na inicialização da aplicação (Program ou Startup)
+		seedUserRoleInitial.SeedRoles();
+		seedUserRoleInitial.SeedUsers();
+	4- Alterar o código do método Register para atribuir os usuários ao perfil Member
+		await_userManager.AddToRoleAsync(user, "Member");
+
+
+Paginação e Filtro de dados de pedidos e lanches(área Admin)
+	1- Fazer a implementação via código usando somente os recursos da ASP.NET Core
+	2- Fazer a implementação usando pacote de terceiro
+		Pacote
+			-ReflectionIT.Mvc.Paging (Nuget)
+			-Código fonte e instruções para instalação de uso
+				https://github.com/sonnemaf/ReflectionIT.Mvc.Paging
+			Install-Package ReflectionIT.Mvc.Paging
+
+Paginação e filtro de dados
+	1 - Incluir o serviço no projeto no método ConfigureServices da classe Startup
+	services.AddPaging(options => 
+	{
+		options.ViewName = "Bootstrap4";
+		options.PageParameterName = "pageindex";
+	});
+
+	2- Alterar o método Action do controlador referente á view onde queremos paginar os dados
+		public async Task<IActionResult> Index(string filter, int pageindex = 1, string sort = "Nome")
+		{
+			var resultado = _context.Lanches.Include(l => l.Categoria).AsQueryable();
+			if(!string.IsNullOrWhiteSpace(filter))
+			{
+				resultado = resultado.Where(p => p.Nome.Contains(filter));
+			}
+			var model = await PagingList.CreateAsync(resultado, 5, pageindex, sort, "Nome");
+		}
+	
+	3- Alterar o código da view que vai exibir os dados paginados (Index.cshtml)

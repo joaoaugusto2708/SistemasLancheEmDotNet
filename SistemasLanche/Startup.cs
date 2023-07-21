@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ReflectionIT.Mvc.Paging;
+using SistemasLanche.Areas.Admin.Services;
 using SistemasLanche.Context;
 using SistemasLanche.Models;
 using SistemasLanche.Repositories;
 using SistemasLanche.Repositories.Interfaces;
+using SistemasLanche.Services;
 
 namespace SistemasLanche;
 public class Startup
@@ -37,6 +40,16 @@ public class Startup
         services.AddTransient<ILancheRepository, LancheRepository>();
         services.AddTransient<ICategoriaRepository, CategoriaRepository>();
         services.AddTransient<IPedidoRepository, PedidoRepository>();
+        services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
+        services.AddScoped<RelatorioVendasService>();
+        services.AddAuthorization(options => //Adiciona uma politica informando que deve requerer o perfil de admin
+        {
+            options.AddPolicy("Admin", politica =>
+                    {
+                        politica.RequireRole("Admin");
+                    }
+                );
+        });
         services.AddScoped(sp => CarrinhoCompra.GetCarrinho(sp));
         services.AddControllersWithViews();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //Ativando recurso HttpContext
@@ -44,10 +57,15 @@ public class Startup
         services.AddSession(); // Ativando Midlleares
 
         IMvcBuilder mvcBuilder = services.AddControllersWithViews();
+        services.AddPaging(options => 
+        {
+            options.ViewName = "Bootstrap4";
+            options.PageParameterName = "pageindex";
+        });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISeedUserRoleInitial seedUserRoleInitial)
     {
         if (env.IsDevelopment())
         {
@@ -62,6 +80,10 @@ public class Startup
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
+        //Cria os perfis
+        seedUserRoleInitial.SeedRoles();
+        //Cria os usuários e atribui ao perfil
+        seedUserRoleInitial.SeedUsers();
         app.UseSession(); //Utilizar o session
         app.UseAuthentication();
         app.UseAuthorization();
@@ -71,7 +93,7 @@ public class Startup
             
            endpoints.MapControllerRoute(
                 name: "areas",
-                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                pattern: "{area:exists}/{controller=Admin}/{action=Index}/{id?}"
                 );
 
             endpoints.MapControllerRoute(

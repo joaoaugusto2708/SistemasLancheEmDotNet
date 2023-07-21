@@ -52,7 +52,7 @@ namespace SistemasLanche.Models
 
         //Em estoque
         [Display(Name = "Estoque")]
-        public bool emEstoque { get; set; }
+        public bool EmEstoque { get; set; }
 
         //Chave estrangeira
         public int CategoriaId { get; set; }
