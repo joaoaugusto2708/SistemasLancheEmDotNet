@@ -55,7 +55,7 @@ public class Startup
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //Ativando recurso HttpContext
         services.AddMemoryCache(); //Ativando Middleares
         services.AddSession(); // Ativando Midlleares
-
+        services.Configure<ConfigurationImagens>(Configuration.GetSection("ConfigurationPastaImagens"));
         IMvcBuilder mvcBuilder = services.AddControllersWithViews();
         services.AddPaging(options => 
         {
